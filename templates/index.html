@@ -1,5 +1,13 @@
 {% extends "layout.html" %}
 {% block title %} {{ title }} {% endblock %}
+{% block css %} <link rel="stylesheet" href="{{ url_for('static', filename='./css/index.css') }}"> {% endblock %}
 {% block content %}
-<h1>Updating</h1>
+<img class="rounded mx-auto d-block" alt="Tree bot image" src="{{ url_for('static', filename='./image/tree-bot.png') }}">
+<br>
+<h2>
+    <ul class="list-group list-group-horizontal-lg text-lg-center">
+        <li class="list-group-item"><button type="button" class="btn btn-success">Success</button></li>
+        <li class="list-group-item"><button type="button" class="btn btn-info">Info</button></li>
+    </ul>
+</h2>
 {% endblock %}

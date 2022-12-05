@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from app import keep_alive
+from app import keep_alive, run
 
 client = commands.Bot( command_prefix=commands.when_mentioned_or( "breh!" ), case_insensitive=True,
                        strip_after_prefix=True, help_command=None, intents=discord.Intents.all(), )
@@ -32,3 +32,4 @@ async def start_bot():
 
 if __name__ == "__main__":
     asyncio.run( start_bot() )
+    
