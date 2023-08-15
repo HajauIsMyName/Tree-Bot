@@ -1,0 +1,4 @@
+python-dotenv==1.0.0
+discord.py==2.3.2
+discord-buttons-plugin==0.1.2
+giphy_client
