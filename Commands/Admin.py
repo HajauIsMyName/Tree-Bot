@@ -6,7 +6,8 @@ from MainFunction import *
 
 
 def checkOwner(user: discord.Member = None):
-    return user.id == 923045277621968916 or user.id == 971519521225580544
+    developer_list = [923045277621968916, 971519521225580544]
+    return user.id in developer_list
 
 
 async def checkAdmin(user: discord.Member = None):
