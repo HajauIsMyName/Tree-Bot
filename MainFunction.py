@@ -6,36 +6,53 @@ dataFile: str = "data.json"
 
 async def update_new_account(member: discord.Member) -> bool:
     """
-    Add new user to *.json file when not in this
+    Add new user to data.json file when not in this
     """
+
+    users = {}
     with open(dataFile, "r") as file:
-        users = json.load(file)
+        try:
+            users = json.load(file)
+            
+        except FileNotFoundError:
+            pass
 
-        if str(member.id) in users:
-            return False
-
-        else:
-            users[str(member.id)] = {
-                "wallet": 0,
-                "bank": 0,
-                "isAdmin": False,
-                "inventory": {
-                    "pistol": {
-                        "ammo": 0,
-                        "own": False,
-                    },
-                    "cross_bow": {
-                        "ammo": 0,
-                        "own": False,
-                    },
-                    "sniper": {
-                        "ammo": 0,
-                        "own": False,
-                    }
-                }
-            }
+    if str(member.id) not in users:
+        users[str(member.id)] = {
+            "wallet": 0,
+            "bank": 0,
+            "isAdmin": False
+        }
 
     with open(dataFile, "w") as file:
+        json.dump(users, file)
+
+    return True
+
+
+async def update_inventory(member: discord.Member) -> bool:
+    """
+    Add new user to inventory.json when not in this
+    """
+
+    users = {}
+    with open("inventory.json", "r") as file:
+        try:
+            users = json.load(file)
+
+        except FileNotFoundError:
+            pass
+
+        if str(member.id) not in users:
+            weapons = ["pistol", "cross_bow", "sniper"]
+            for weapon in weapons:
+                users[str(member.id)][weapon] = {
+                    "ammo": 0,
+                    "own": False,
+                    "equip": False,
+                }
+
+    with open("inventory.json", "w") as file:
         json.dump(users, file)
 
     return True
