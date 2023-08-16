@@ -84,7 +84,7 @@ class Other(commands.Cog):
 
     @commands.command(aliases=["guildlink"])
     async def server(self, ctx):
-        url = "https://discord.gg/YWXNzxJAxz"
+        url = "https://link1s.com/OLcUQym"
         await ctx.send(f"Here's an invite for BrehServer's support guild: {url}")
 
 

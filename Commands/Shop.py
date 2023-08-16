@@ -144,21 +144,24 @@ class Shop(commands.Cog):
                 authorBalance = await get_bank(ctx.author)
                 memberBalance = await get_bank(member)
 
-                if inventory[weapon]["ammo"] < (returnVarItem(shopPrice[weapon]["price"]) / 10):
-                    await ctx.send("You don't have enough coins to shoot.")
+                if inventory[weapon]["ammo"] < 1:
+                    await ctx.send("You don't have enough ammo to shoot.")
                     return
 
-                damage = max(shopPrice[weapon]["dame"]) if isHit(returnVarItem(
-                    shopPrice[weapon]["hit_chance"])) else random.randint(shopPrice[weapon]["hit_chance"])
-                coins_stolen = random.randint(
-                    shopPrice[weapon]["hit_chance"]) * damage
+
+                dame = shopPrice[weapon]["dame"]
+                hit_chance = shopPrice[weapon]["hit_chance"]
+
+                damage = max(dame) if isHit(int(hit_chance)) else random.randint(dame[0], dame[-1])
+                coins_stolen = random.randint(dame[0], dame[-1]) * damage
 
                 await update_weapon(ctx.author, weapon, "ammo", inventory[weapon]["ammo"] - 1)
                 await update_data(ctx.author, authorBalance[0] + coins_stolen)
                 await update_data(member, memberBalance[0] - coins_stolen)
 
-                await ctx.send(f"You hit your target and gained {damage} coins! You also stole {coins_stolen} coins.")
-            return
+                await ctx.send(f"You also stole **{coins_stolen}** coins.")
+                return
+
         await ctx.send("You need to equip a weapon first. Use `breh!equip <item_number>`.")
 
 
