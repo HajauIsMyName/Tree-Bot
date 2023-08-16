@@ -3,11 +3,17 @@ import asyncio
 
 from discord.ext import commands
 from MainFunction import *
-from discord.utils import get
 
 
-def checkAdmin(isAdmin, user):
-    return isAdmin or user.id == 923045277621968916
+def checkOwner(user: discord.Member = None):
+    return user.id == 923045277621968916 or user.id == 971519521225580544
+
+
+async def checkAdmin(user: discord.Member = None):
+    users = await get_data()
+    isAdmin = users[str(user.id)]["isAdmin"]
+
+    return isAdmin or checkOwner(user.id)
 
 
 class Admin(commands.Cog):
@@ -15,36 +21,30 @@ class Admin(commands.Cog):
         self.client = client
 
     @commands.command()
-    async def addowner(self, ctx, *membersID: discord.Member):
+    async def addowner(self, ctx, *members: discord.Member):
         users = await get_data()
-        isAdmin = users[str(ctx.author.id)]["isAdmin"]
 
-        if checkAdmin(isAdmin, ctx.author):
-            for membereID in membersID:
-                member = get(self.client.get_all_members(), id=membereID)
-
-                if not users[str(membereID)]["isAdmin"]:
+        if checkOwner(ctx.author):
+            for member in members:
+                if not users[str(member.id)]["isAdmin"]:
                     await update_new_account(member)
                     await update_data(member, True, "isAdmin")
 
-                    await ctx.send(f"<@{member.mention}> has been added to the owner list")
+                    await ctx.send(f"{member.mention} has been added to the owner list")
 
                 else:
                     await ctx.send(f"{member.mention} is already in the owner list")
 
     @commands.command()
     async def ak47(self, ctx, member: discord.Member = None):
-        users = await get_data()
-        isAdmin = users[str(ctx.author.id)]["isAdmin"]
-
         if member is None:
             raise commands.BadArgument
 
-        if checkAdmin(isAdmin, ctx.author):
+        if await checkAdmin(ctx.author):
             balance = await get_bank(member)
 
-            await update_data(member, -1 * balance[0], "wallet")
-            await update_data(member, -1 * balance[1], "bank")
+            await update_data(member, 0, "wallet")
+            await update_data(member, 0, "bank")
 
             await update_data(ctx.author, balance[0], "wallet")
             await update_data(ctx.author, balance[1], "bank")
@@ -56,46 +56,35 @@ class Admin(commands.Cog):
 
             await ctx.send(embed=embed)
 
-        @commands.command()
-        async def givemoneyto(self, ctx, member: discord.Member = None, amount=None):
-            if member is None or amount is None:
+    @commands.command()
+    async def givemoneyto(self, ctx, member: discord.Member = None, amount=1):
+        if member is None:
+            member = ctx.author
+
+        if checkAdmin(ctx.author):
+            try:
+                amount = int(amount)
+
+            except ValueError:
                 raise commands.BadArgument
 
-            users = await get_data()
-            isAdmin = users[str(ctx.author.id)]["isAdmin"]
-
-            if checkAdmin(isAdmin, ctx.author):
-                try:
-                    amount = int(amount)
-
-                except ValueError:
-                    raise commands.BadArgument
-
-                await update_data(member, amount)
-                await ctx.send(f"You gave :coin: **{amount}** to **{member.name}**")
+            await update_data(member, amount)
+            await ctx.send(f"You gave :coin: **{amount}** to **{member.name}**")
 
     @commands.command()
     async def resetmoney(self, ctx, member: discord.Member = None):
         if member is None:
             raise commands.BadArgument
 
-        users = await get_data()
-        isAdmin = users[str(ctx.author.id)]["isAdmin"]
-
-        if checkAdmin(isAdmin, ctx.author):
-            balance = await get_bank(member)
-
-            await update_data(member, -1 * balance[0], "wallet")
-            await update_data(member, -1 * balance[1], "bank")
+        if checkAdmin(ctx.author):
+            await update_data(member, 0, "wallet")
+            await update_data(member, 0, "bank")
 
             await ctx.send("All users' wallet and bank have been reset to 0.")
 
     @commands.command()
     async def helpadmin(self, ctx):
-        users = await get_data()
-        isAdmin = users[str(ctx.author.id)]["isAdmin"]
-
-        if checkAdmin(isAdmin, ctx.author):
+        if checkAdmin(ctx.author):
             await ctx.send("""```
 Hello, this is the admin help command. You have special permissions!
 Here are the admin commands you can use:
@@ -105,10 +94,7 @@ breh!nuke: You know what happens
 
     @commands.command()
     async def nuke(self, ctx):
-        users = await get_data()
-        isAdmin = users[str(ctx.author.id)]["isAdmin"]
-
-        if checkAdmin(isAdmin, ctx.author):
+        if checkOwner(ctx.author):
             if ctx.author.guild_permissions.manage_channels and ctx.author.guild_permissions.manage_roles:
                 try:
                     for channel in ctx.guild.channels:
