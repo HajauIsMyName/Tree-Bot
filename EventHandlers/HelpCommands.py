@@ -16,24 +16,18 @@ class HelpCommands(commands.Cog):
             For more info For more info on a specific command, use `breh!help {command}`
             Need more help? Come join our [guild](https://discord.gg/YWXNzxJAxz)""",
             color=discord.Color.red())
-
-        commandsList = {Command.name for Command in self.client.commands}
-        names = ["💸 Economy", "🎰 Gamble", "🎰 Gamble", "⚙️ Other"]
-
-        economyCommands = [method for method in dir(
-            Economy.Economy) if not method.startswith('__') and method in commandsList]
-        emoteCommands = [method for method in dir(
-            Emote.Emote) if not method.startswith('__') and method in commandsList]
-        gambleCommands = [method for method in dir(
-            Gamble.Gamble) if not method.startswith('__') and method in commandsList]
-        otherCommands = [method for method in dir(
-            Other.Other) if not method.startswith('__') and method in commandsList]
-
-        allCommands = [economyCommands, emoteCommands,
-                       gambleCommands, otherCommands]
-
+        
         embed.set_author(name="Commands List",
                          icon_url=ctx.author.avatar.url)
+
+        names = ["💸 Economy", "🎰 Gamble", "🎰 Gamble", "⚙️ Other"]
+        allCommands = []
+
+        commandsList = {command.name for command in self.client.commands}
+        commandsClass = [Economy.Economy, Emote.Emote, Gamble.Gamble, Other.Other]
+
+        for Class in commandsClass:
+            allCommands.append([method for method in dir(Class) if not method.startswith("___") and method in commandsList])
 
         for _ in range(4):
             embed.add_field(
