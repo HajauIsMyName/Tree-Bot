@@ -1,5 +1,5 @@
 from discord.ext import commands
-from MainFunction import update_new_account
+from MainFunction import *
 
 class Events(commands.Cog):
     def __init__(self, client):
@@ -15,6 +15,7 @@ class Events(commands.Cog):
             return
         
         await update_new_account(message.author)
+        await update_inventory(message.author)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
