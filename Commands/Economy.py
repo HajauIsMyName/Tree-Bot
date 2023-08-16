@@ -18,8 +18,8 @@ class Economy(commands.Cog):
         balance = await get_bank(member)
 
         embed = discord.Embed(color=discord.Color.red())
-        embed.set_author(
-            name=f"{member.name}'s balance", icon_url=member.avatar.url)
+        embed.set_author(name=f"{member.name}'s balance",
+                         icon_url=member.avatar.url)
         embed.add_field(name="Wallet:", value=f":coin: {balance[0]}")
         embed.add_field(name="Bank:", value=f":coin: {balance[1]}")
 

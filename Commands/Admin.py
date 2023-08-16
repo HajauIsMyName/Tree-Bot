@@ -14,7 +14,7 @@ async def checkAdmin(user: discord.Member = None):
     users = await get_data()
     isAdmin = users[str(user.id)]["isAdmin"]
 
-    return isAdmin or checkOwner(user.id)
+    return isAdmin is True or checkOwner(user)
 
 
 class Admin(commands.Cog):
@@ -41,7 +41,8 @@ class Admin(commands.Cog):
         if member is None:
             raise commands.BadArgument
 
-        if await checkAdmin(ctx.author):
+        isAdmin = await checkAdmin(ctx.author)
+        if isAdmin:
             balance = await get_bank(member)
 
             await update_data(member, 0, "wallet")
@@ -58,18 +59,15 @@ class Admin(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
-    async def givemoneyto(self, ctx, member: discord.Member = None, amount=1):
+    async def givemoneyto(self, ctx, amount: int = 1, member: discord.Member = None):
         if member is None:
             member = ctx.author
 
-        if checkAdmin(ctx.author):
-            try:
-                amount = int(amount)
+        balance = await get_bank(member)
+        isAdmin = await checkAdmin(ctx.author)
 
-            except ValueError:
-                raise commands.BadArgument
-
-            await update_data(member, amount)
+        if isAdmin:
+            await update_data(member, balance[0] + amount)
             await ctx.send(f"You gave :coin: **{amount}** to **{member.name}**")
 
     @commands.command()
@@ -77,7 +75,8 @@ class Admin(commands.Cog):
         if member is None:
             raise commands.BadArgument
 
-        if checkAdmin(ctx.author):
+        isAdmin = await checkAdmin(ctx.author)
+        if isAdmin:
             await update_data(member, 0, "wallet")
             await update_data(member, 0, "bank")
 
@@ -85,7 +84,8 @@ class Admin(commands.Cog):
 
     @commands.command()
     async def helpadmin(self, ctx):
-        if checkAdmin(ctx.author):
+        isAdmin = await checkAdmin(ctx.author)
+        if isAdmin:
             await ctx.send("""```
 Hello, this is the admin help command. You have special permissions!
 Here are the admin commands you can use:
