@@ -57,7 +57,7 @@ class Economy(commands.Cog):
         elif amount < 0:
             raise commands.BadArgument
 
-        await update_data(ctx.author, -1 * amount)
+        await update_data(ctx.author, -amount)
         await update_data(ctx.author, amount, "bank")
 
         await ctx.send(f"You deposited **:coin: {amount}**")
@@ -87,7 +87,7 @@ class Economy(commands.Cog):
         elif amount < 0:
             raise commands.BadArgument
 
-        await update_data(ctx.author, -1 * amount)
+        await update_data(ctx.author, -amount)
         await update_data(member, amount)
 
         await ctx.send(f"**{ctx.author.name}** sent **:coin: {amount}** to **{member.name}**!")
@@ -117,7 +117,7 @@ class Economy(commands.Cog):
             raise commands.BadArgument
 
         await update_data(ctx.author, amount)
-        await update_data(ctx.author, -1 * amount, "bank")
+        await update_data(ctx.author, -amount, "bank")
 
         await ctx.send(f"You withdrew **:coin: {amount}**")
 

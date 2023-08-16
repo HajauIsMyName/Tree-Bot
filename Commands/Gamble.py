@@ -52,7 +52,7 @@ class Gamble(commands.Cog):
 
         else:
             desc = f"You bet :coin: {amount} on {user_choice}.\nIt was {bot_choice}. You lost all :C"
-            await update_data(ctx.author, -1 * amount)
+            await update_data(ctx.author, -amount)
 
         embed = discord.Embed(description=desc)
         embed.set_author(name="Coinflip")
