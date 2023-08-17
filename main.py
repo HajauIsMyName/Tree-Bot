@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 client = commands.Bot(
     command_prefix=commands.when_mentioned_or("breh!"),
     case_insensitive=True,
-    strip_after_prefix=True, 
-    help_command=None, 
+    strip_after_prefix=True,
+    help_command=None,
     intents=discord.Intents.all()
 )
 
