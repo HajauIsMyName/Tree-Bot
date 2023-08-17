@@ -1,4 +1,3 @@
-import os
 import random
 import discord
 
@@ -12,17 +11,41 @@ class Gamble(commands.Cog):
 
     @commands.command(aliases=["cf", "flip"])
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def coinflip(self, ctx, amount=1, user_choice="h"):
+    async def coinflip(self, ctx, *messages):
         balance = await get_bank(ctx.author)
+        messages = [message.lower() for message in messages]
 
-        if amount == "max" or amount == "all":
-            amount = balance[0]
+        if not messages:
+            amount = 1
+            userChoice = "heads"
 
-        try:
-            amount = int(amount)
+        else:
+            if len(messages) == 2:
+                for message in messages:
+                    if message == "max" or message == "all":
+                        amount = balance[0]
 
-        except ValueError:
-            raise commands.BadArgument
+                    else:
+                        try:
+                            amount = int(message)
+
+                        except:
+                            userChoice = message
+
+            elif len(messages) == 1:
+                try:
+                    amount = int(messages[0])
+                    userChoice = "heads"
+
+                except:
+                    userChoice = messages[0]
+
+                    if userChoice == "max" or userChoice == "all":
+                        amount = balance[0]
+                        userChoice = "heads"
+
+                    else:
+                        amount = 1
 
         if amount <= 0:
             raise commands.BadArgument
@@ -31,28 +54,16 @@ class Gamble(commands.Cog):
             await ctx.send(f"**:no_entry_sign: {ctx.author}**, you don't have that much money!")
             return
 
-        user_choice = user_choice.lower()
+        botChoice = random.randrange(2)
+        coins = {"0": "heads", "1": "tails"}
 
-        if user_choice in ["h", "heads"]:
-            user_choice = 0
-
-        elif user_choice in ["t", "tails"]:
-            user_choice = 1
-
-        else:
-            raise commands.BadArgument
-
-        random.seed(int(os.getenv("SEED")))
-
-        bot_choice = random.randrange(2)
-
-        if bot_choice == user_choice:
-            desc = f"You bet :coin: {amount} on {user_choice}.\nIt was {bot_choice}. **YOU WIN**\n+ :coin: {amount * 2}"
-            await update_data(ctx.author, amount)
+        if botChoice == userChoice:
+            desc = f"You bet :coin: {amount} on {coins[str(userChoice)]}.\nIt was {coins[str(botChoice)]}. **YOU WIN**\n+ :coin: {amount * 2}"
+            await update_data(ctx.author, balance[0] + amount)
 
         else:
-            desc = f"You bet :coin: {amount} on {user_choice}.\nIt was {bot_choice}. You lost all :C"
-            await update_data(ctx.author, -amount)
+            desc = f"You bet :coin: {amount} on {coins[str(userChoice)]}.\nIt was {coins[str(botChoice)]}. You lost all :C"
+            await update_data(ctx.author, balance[0] - amount)
 
         embed = discord.Embed(description=desc)
         embed.set_author(name="Coinflip")
