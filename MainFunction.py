@@ -1,98 +1,72 @@
-import json
+import sqlite3
 import discord
 
-dataFile: str = "data.json"
+databaseFile = "data.sqlite3"
 
-
-async def update_new_account(member: discord.Member) -> bool:
+async def createDB():
+    """"
+    Create a new table in the database if it doesnt exist yet
     """
-    Add new user to data.json file when not in this
+    connection = sqlite3.connect(databaseFile)
+    cursor = connection.cursor()
+
+    cursor.execute(f"""
+        CREATE TABLE IF NOT EXISTS balance (
+            userID INTEGER,
+            wallet INTEGER,
+            bank INTEGER
+        )""")
+    
+    cursor.execute(f"""
+        CREATE TABLE IF NOT EXISTS admin (
+            isAdmin BOOLEAN,
+            isOwner BOOLEAN
+        )""")
+
+
+async def open_account(user: discord.Member):
     """
-
-    users = {}
-    with open(dataFile, "r") as file:
-        try:
-            users = json.load(file)
-
-        except FileNotFoundError:
-            users = {
-                str(member.id): {
-                    "wallet": 0,
-                    "bank": 0,
-                    "isAdmin": False
-                }
-            }
-
-    if str(member.id) not in users:
-        users[str(member.id)] = {
-            "wallet": 0,
-            "bank": 0,
-            "isAdmin": False,
-            "inventory": {
-                "pistol": {
-                    "ammo": 0,
-                    "own": False,
-                    "equip": False,
-                },
-                "cross_bow": {
-                    "ammo": 0,
-                    "own": False,
-                    "equip": False,
-                },
-                "sniper": {
-                    "ammo": 0,
-                    "own": False,
-                    "equip": False,
-                },
-            }
-        }
-
-    with open(dataFile, "w") as file:
-        json.dump(users, file)
-
-    return True
-
-
-async def get_data() -> dict:
+    Insert user to database if it doesnt exist yey
     """
-    Return data of users
-    """
-    with open(dataFile, "r") as file:
-        users = json.load(file)
+    connection = sqlite3.connect(databaseFile)
+    cursor = connection.cursor()
 
-    return users
+    cursor.execute(f"SELECT userID FROM balance WHERE userID = {user.id}")
+    result = cursor.fetchone()
+    exists = result is not None
 
+    if not exists:
+        cursor.execute(
+            f"INSERT INTO balance (userID, wallet, bank) VALUES ({user.id}, {0}, {0})")
+        connection.commit()
+        connection.close()
+        return True
 
-async def update_data(member: discord.Member, change: any = 0, mode: any = "wallet") -> None:
-    """
-    Update user with data
-    """
-    users = await get_data()
-    users[str(member.id)][mode] = change
-
-    with open(dataFile, "w") as file:
-        json.dump(users, file)
-
-
-async def update_weapon(member: discord.Member, weapon: str = None, mode: str = "own", change: any = True) -> None:
-    """
-    Update inventory of user
-    """
-
-    users = await get_data()
-    users[str(member.id)]["inventory"][weapon][mode] = change
-
-    with open(dataFile, "w") as file:
-        json.dump(users, file)
+    else:
+        return False
 
 
-async def get_bank(member: discord.Member) -> tuple:
-    """
-    Return bank data of user
-    """
-    users = await get_data()
-    return users[str(member.id)]["wallet"], users[str(member.id)]["bank"]
+async def get_balance(user: discord.Member):
+    connection = sqlite3.connect(databaseFile)
+    cursor = connection.cursor()
 
-async def get_inventory(member: discord.Member) -> tuple:
-    users = await get_data()
-    return users[str(member.id)]["inventory"]
+    cursor.execute(f"SELECT wallet, bank FROM balance WHERE userID = {user.id}")
+    result = cursor.fetchone()
+    balance = result
+
+    connection.close()
+
+    return balance
+
+
+async def update_balance(user: discord.Member, change: int = 0, mode: str = "wallet"):
+    connection = sqlite3.connect(databaseFile)
+    cursor = connection.cursor()
+
+    cursor.execute(f"""
+        UPDATE balance
+        SET {mode} = {change}
+        WHERE userID = {user.id}""")
+
+    connection.commit()
+    connection.close()

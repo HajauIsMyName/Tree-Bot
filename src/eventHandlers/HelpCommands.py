@@ -1,7 +1,7 @@
 import discord
 
 from discord.ext import commands
-from Commands import Economy, Emote, Gamble, Other
+from src.Commands import Economy, Emote, Gamble, Other
 
 
 class HelpCommands(commands.Cog):
@@ -16,7 +16,7 @@ class HelpCommands(commands.Cog):
             For more info For more info on a specific command, use `breh!help {command}`
             Need more help? Come join our [guild](https://discord.gg/YWXNzxJAxz)""",
             color=discord.Color.red())
-        
+
         embed.set_author(name="Commands List",
                          icon_url=ctx.author.avatar.url)
 
@@ -24,10 +24,12 @@ class HelpCommands(commands.Cog):
         allCommands = []
 
         commandsList = {command.name for command in self.client.commands}
-        commandsClass = [Economy.Economy, Emote.Emote, Gamble.Gamble, Other.Other]
+        commandsClass = [Economy.Economy,
+                         Emote.Emote, Gamble.Gamble, Other.Other]
 
         for Class in commandsClass:
-            allCommands.append([method for method in dir(Class) if not method.startswith("___") and method in commandsList])
+            allCommands.append([method for method in dir(
+                Class) if not method.startswith("___") and method in commandsList])
 
         for _ in range(4):
             embed.add_field(

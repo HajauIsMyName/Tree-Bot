@@ -24,7 +24,7 @@ class Other(commands.Cog):
     @commands.command()
     async def echo(self, ctx, *, msg=None):
         if msg is None:
-            return
+            raise commands.BadArgument
 
         await ctx.send(msg)
 

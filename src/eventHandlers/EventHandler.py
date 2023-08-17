@@ -1,21 +1,25 @@
+import os
+
 from discord.ext import commands
 from MainFunction import *
 
-class Events(commands.Cog):
+
+class EventHandler(commands.Cog):
     def __init__(self, client):
         self.client = client
 
     @commands.Cog.listener()
     async def on_ready(self):
+        os.system("cls" if os.name == "nt" else "clear")
         print(f"Logged in as {self.client.user} (ID: {self.client.user.id})")
+        await createDB()
 
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
             return
-        
-        await update_new_account(message.author)
-        await update_inventory(message.author)
+
+        await open_account(message.author)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -41,4 +45,4 @@ class Events(commands.Cog):
 
 
 async def setup(client):
-    await client.add_cog(Events(client))
+    await client.add_cog(EventHandler(client))
