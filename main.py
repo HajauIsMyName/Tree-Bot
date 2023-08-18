@@ -4,6 +4,7 @@ import discord
 
 from discord.ext import commands
 from dotenv import load_dotenv
+from app import *
 
 client = commands.Bot(
     command_prefix=commands.when_mentioned_or("breh!"),
@@ -29,4 +30,5 @@ async def start_bot():
         await client.start(os.getenv("TOKEN"))
 
 if __name__ == "__main__":
+    keep_alive()
     asyncio.run(start_bot())
